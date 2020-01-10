@@ -1,6 +1,6 @@
 Name:		nss-pam-ldapd
 Version:	0.7.5
-Release:	18.4%{?dist}
+Release:	20%{?dist}.2
 Summary:	An nsswitch module which uses directory servers
 Group:		System Environment/Base
 License:	LGPLv2+
@@ -204,21 +204,21 @@ if test -f /var/run/nss-pam-ldapd.migrate; then
 fi
 
 %changelog
-* Tue Feb 17 2015  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-18.4
-- Resolves: rhbz#1193114 - nslcd does not reconnect to alternate ldap server
+* Tue Feb 17 2015  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.2
+- Resolves: rhbz#1193115 - nslcd does not reconnect to alternate ldap server
                            when using SSL
 
-* Tue Feb 17 2015  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-18.3
-- Resolves: rhbz#1193114 - nslcd does not reconnect to alternate ldap server
+* Tue Feb 17 2015  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.1
+- Resolves: rhbz#1193115 - nslcd does not reconnect to alternate ldap server
                            when using SSL
 
-* Mon Jul 22 2013  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-18.2
+* Mon Jul 22 2013  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20
 - Apply a patch by Martin Poole to fix skipping a zero-length attribute
-- Resolves: #986898
+- Resolves: #958364
 
-* Tue Feb 19 2013  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-18.1
+* Tue Feb 19 2013  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-19
 - Apply upstream r1926 to resolve FD_SET array index error
-- Resolves: rhbz#915361
+- Resolves: rhbz#915362
 
 * Mon Nov 26 2012  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-18
 - Correct the patch to silent a warning after retrieving a large group
