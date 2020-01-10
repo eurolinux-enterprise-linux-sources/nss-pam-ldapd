@@ -1,6 +1,6 @@
 Name:		nss-pam-ldapd
 Version:	0.7.5
-Release:	20%{?dist}.2
+Release:	20%{?dist}.3
 Summary:	An nsswitch module which uses directory servers
 Group:		System Environment/Base
 License:	LGPLv2+
@@ -23,7 +23,8 @@ Patch11:        nss-pam-ldapd-0.7.x-skipall.patch
 Patch12:        nss-pam-ldapd-0.7.5-fdsize.patch
 Patch13:        nss-pam-ldapd-0.7.x-skipnull.patch
 Patch14:        nss-pam-ldapd-ssl-timeout.patch
-Patch15:        nss-pam-ldapd-static-cb-buf.patch
+Patch15:        nss-pam-ldapd-config-crash.patch
+Patch16:        nss-pam-ldapd-static-cb-buf.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	openldap-devel, krb5-devel
@@ -63,7 +64,8 @@ nsswitch module.
 %patch12 -p1 -b .fdset
 %patch13 -p1 -b .skipnull
 %patch14 -p1 -b .ssl
-%patch15 -p1 -b .cbstatic
+%patch15 -p1 -b .configcrash
+%patch16 -p1 -b .cbstatic
 autoreconf -f -i
 
 %build
@@ -204,12 +206,17 @@ if test -f /var/run/nss-pam-ldapd.migrate; then
 fi
 
 %changelog
-* Tue Feb 17 2015  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.2
-- Resolves: rhbz#1193115 - nslcd does not reconnect to alternate ldap server
-                           when using SSL
+* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.3
+- Use a static buffer for OpenLDAP callback structure
+- Resolves: rhbz#999472 - nslcd does not reconnect to alternate ldap server
+                          when using SSL
 
-* Tue Feb 17 2015  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.1
-- Resolves: rhbz#1193115 - nslcd does not reconnect to alternate ldap server
+* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.2
+- Do not crash when parsing the tls_ciphers option
+- Resolves: rhbz#1184361 - segfault occurs when nslcd starts 
+
+* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.1
+- Resolves: rhbz#1192451 - nslcd does not reconnect to alternate ldap server
                            when using SSL
 
 * Mon Jul 22 2013  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20
