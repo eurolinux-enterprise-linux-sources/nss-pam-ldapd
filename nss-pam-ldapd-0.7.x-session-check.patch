@@ -1,0 +1,21 @@
+diff -up nss-pam-ldapd-0.7.5/nslcd/myldap.c.session nss-pam-ldapd-0.7.5/nslcd/myldap.c
+--- nss-pam-ldapd-0.7.5/nslcd/myldap.c.session	2011-12-20 18:31:10.781372151 +0100
++++ nss-pam-ldapd-0.7.5/nslcd/myldap.c	2011-12-20 18:31:16.434323388 +0100
+@@ -620,8 +620,6 @@ static int do_open(MYLDAP_SESSION *sessi
+   int rc,rc2;
+   int sd=-1;
+   int off=0;
+-  /* check if the idle time for the connection has expired */
+-  myldap_session_check(session);
+   /* if the connection is still there (ie. ldap_unbind() wasn't
+      called) then we can return the cached connection */
+   if (session->ld!=NULL)
+@@ -926,6 +924,8 @@ MYLDAP_SEARCH *myldap_search(
+   /* log the call */
+   log_log(LOG_DEBUG,"myldap_search(base=\"%s\", filter=\"%s\")",
+                     base,filter);
++  /* check if the idle time for the connection has expired */
++  myldap_session_check(session);
+   /* allocate a new search entry */
+   search=myldap_search_new(session,base,scope,filter,attrs);
+   /* find a place in the session where we can register our search */

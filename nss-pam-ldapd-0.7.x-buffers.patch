@@ -1,0 +1,29 @@
+Parts of r1476 -- leave enough room for GID values above a billion and
+unusually large pwdLastSet values.
+
+diff --git a/nslcd/passwd.c b/nslcd/passwd.c
+index 15124fe..a649322 100644
+--- a/nslcd/passwd.c
++++ b/nslcd/passwd.c
+@@ -390,7 +390,7 @@ static int write_passwd(TFILE *fp,MYLDAP_ENTRY *entry,const char *requser,
+   const char *passwd;
+   uid_t uids[MAXUIDS_PER_ENTRY];
+   int numuids;
+-  char gidbuf[10];
++  char gidbuf[32];
+   gid_t gid;
+   char gecos[100];
+   char homedir[100];
+diff --git a/nslcd/shadow.c b/nslcd/shadow.c
+index 6de372b..5d6dae7 100644
+--- a/nslcd/shadow.c
++++ b/nslcd/shadow.c
+@@ -112,7 +112,7 @@ void shadow_init(void)
+ 
+ static long to_date(const char *date,const char *attr)
+ {
+-  char buffer[8];
++  char buffer[32];
+   long value;
+   char *tmp;
+   size_t l;

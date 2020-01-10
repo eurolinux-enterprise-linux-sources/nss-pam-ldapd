@@ -1,0 +1,30 @@
+Older versions of "man" don't like that first line.  In newer releases, this
+won't be necessary.
+
+diff -up nss-pam-ldapd-0.7.5/man/nslcd.8 nss-pam-ldapd-0.7.5/man/nslcd.8
+--- nss-pam-ldapd-0.7.5/man/nslcd.8	2010-05-14 16:48:19.000000000 -0400
++++ nss-pam-ldapd-0.7.5/man/nslcd.8	2011-02-18 15:31:34.845407989 -0500
+@@ -1,4 +1,4 @@
+-'\" -*- coding: utf-8 -*-
++.\" -*- coding: utf-8 -*-
+ .if \n(.g .ds T< \\FC
+ .if \n(.g .ds T> \\F[\n[.fam]]
+ .de URL
+diff -up nss-pam-ldapd-0.7.5/man/nslcd.conf.5 nss-pam-ldapd-0.7.5/man/nslcd.conf.5
+--- nss-pam-ldapd-0.7.5/man/nslcd.conf.5	2011-03-18 14:40:13.969999948 -0400
++++ nss-pam-ldapd-0.7.5/man/nslcd.conf.5	2011-03-18 14:40:16.393999948 -0400
+@@ -1,4 +1,4 @@
+-'\" -*- coding: utf-8 -*-
++.\" -*- coding: utf-8 -*-
+ .if \n(.g .ds T< \\FC
+ .if \n(.g .ds T> \\F[\n[.fam]]
+ .de URL
+diff -up nss-pam-ldapd-0.7.5/man/pam_ldap.8 nss-pam-ldapd-0.7.5/man/pam_ldap.8
+--- nss-pam-ldapd-0.7.5/man/pam_ldap.8	2011-03-18 14:40:24.292999948 -0400
++++ nss-pam-ldapd-0.7.5/man/pam_ldap.8	2011-03-18 14:40:29.241999948 -0400
+@@ -1,4 +1,4 @@
+-'\" -*- coding: utf-8 -*-
++.\" -*- coding: utf-8 -*-
+ .if \n(.g .ds T< \\FC
+ .if \n(.g .ds T> \\F[\n[.fam]]
+ .de URL

@@ -1,0 +1,25 @@
+From 0.7.12.
+diff -ur nss-pam-ldapd-0.7.5/nslcd/myldap.c nss-pam-ldapd-0.7.12/nslcd/myldap.c
+--- nss-pam-ldapd-0.7.5/nslcd/myldap.c	2010-05-09 06:47:04.000000000 -0400
++++ nss-pam-ldapd-0.7.12/nslcd/myldap.c	2010-10-17 06:55:23.000000000 -0400
+@@ -529,6 +547,20 @@
+ {
+   int i;
+   int rc;
++  int sd=-1;
++  struct timeval tv;
++  /* set timeout options on socket to avoid hang in some cases
++     (we set a short timeout because we don't care too much about properly
++     shutting down the connection) */
++  if (ldap_get_option(session->ld,LDAP_OPT_DESC,&sd)==LDAP_SUCCESS)
++  {
++    /* ignore errors */
++    tv.tv_sec=nslcd_cfg->ldc_timelimit/2;
++    if (!tv.tv_sec) tv.tv_sec=1;
++    tv.tv_usec=0;
++    (void)setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,(void *)&tv,sizeof(tv));
++    (void)setsockopt(sd,SOL_SOCKET,SO_SNDTIMEO,(void *)&tv,sizeof(tv));
++  }
+   /* if we had reachability problems with the server close the connection */
+   if (session->ld!=NULL)
+   {

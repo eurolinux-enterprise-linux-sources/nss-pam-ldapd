@@ -1,0 +1,81 @@
+Parts of the upstream patch, adapted, plus a fix for a typo.
+
+commit e36a4270122f690927d17f06259ce5a9308cd1eb
+Author: arthur <arthur@ef36b2f9-881f-0410-afb5-c4e39611909c>
+Date:   Wed Aug 24 18:51:55 2011 +0000
+
+    support querying DNS SRV records from a different domain than the current one (based on a patch by James M. Leddy)
+    
+    git-svn-id: http://arthurdejong.org/svn/nss-pam-ldapd/nss-pam-ldapd@1513 ef36b2f9-881f-0410-afb5-c4e39611909c
+
+diff -up a/man/nslcd.conf.5 b/man/nslcd.conf.5
+--- a/man/nslcd.conf.5	2011-10-04 18:05:38.000000000 +0200
++++ b/man/nslcd.conf.5	2011-10-04 18:06:21.000000000 +0200
+@@ -54,7 +54,8 @@ ICP or SSL respectively (if
+ supported by the LDAP library).
+ Alternatively, the value \*(T<DNS\*(T> may be
+ used to try to lookup the server using DNS
+-SRV records.
++SRV records. By default the current domain is used but another domain can
++be queried by using the \*(T<DNS:\*(T>\fIDOMAIN\fR syntax.
+ 
+ When using the ldapi scheme, %2f should be used to escape slashes
+ (e.g. ldapi://%2fvar%2frun%2fslapd%2fldapi/), although most of the
+diff --git a/man/nslcd.conf.5.xml b/man/nslcd.conf.5.xml
+index 6c0f9e3..51869f4 100644
+--- a/man/nslcd.conf.5.xml
++++ b/man/nslcd.conf.5.xml
+@@ -127,9 +127,14 @@
+        <acronym>LDAP</acronym> over <acronym>TCP</acronym>,
+        <acronym>ICP</acronym> or <acronym>SSL</acronym> respectively (if
+        supported by the <acronym>LDAP</acronym> library).
++      </para>
++      <para>
+        Alternatively, the value <literal>DNS</literal> may be
+        used to try to lookup the server using <acronym>DNS</acronym>
+        <acronym>SRV</acronym> records.
++       By default the current domain is used but another domain can
++       be queried by using the
++       <literal>DNS:</literal><replaceable>DOMAIN</replaceable> syntax.
+       </para>
+       <para>
+        When using the ldapi scheme, %2f should be used to escape slashes
+diff --git a/nslcd/cfg.c b/nslcd/cfg.c
+index fee3286..ac354c0 100644
+--- a/nslcd/cfg.c
++++ b/nslcd/cfg.c
+@@ -184,13 +184,13 @@ static const char *cfg_getdomainname(const char *filename,int lnr)
+ 
+ /* add URIs by doing DNS queries for SRV records */
+ static void add_uris_from_dns(const char *filename,int lnr,
+-                              struct ldap_config *cfg)
++                              struct ldap_config *cfg,
++                              const char *domain)
+ {
+   int ret=0;
+-  char *domain;
+   char *hostlist=NULL,*nxt;
+   char buf[HOST_NAME_MAX+sizeof("ldap://")];
+-  domain=cfg_getdomainname(filename,lnr);
++  log_log(LOG_DEBUG,"query %s for SRV records",domain);
+   ret=ldap_domain2hostlist(domain,&hostlist);
+   /* FIXME: have better error handling */
+   if ((hostlist==NULL)||(*hostlist=='\0'))
+@@ -856,7 +856,16 @@ static void cfg_read(const char *filename,struct ldap_config *cfg)
+         if (strcasecmp(token,"dns")==0)
+         {
+ #ifdef HAVE_LDAP_DOMAIN2HOSTLIST
+-          add_uris_from_dns(filename,lnr,cfg);
++          add_uris_from_dns(filename,lnr,cfg,cfg_getdomainname(filename,lnr));
++#else /* not HAVE_LDAP_DOMAIN2HOSTLIST */
++          log_log(LOG_ERR,"%s:%d: value %s not supported on platform",filename,lnr,token);
++          exit(EXIT_FAILURE);
++#endif /* not HAVE_LDAP_DOMAIN2HOSTLIST */
++        }
++        else if (strncasecmp(token,"dns:",4)==0)
++        {
++#ifdef HAVE_LDAP_DOMAIN2HOSTLIST
++          add_uris_from_dns(filename,lnr,cfg,strdup(token+sizeof("dns")));
+ #else /* not HAVE_LDAP_DOMAIN2HOSTLIST */
+           log_log(LOG_ERR,"%s:%d: value %s not supported on platform",filename,lnr,token);
+           exit(EXIT_FAILURE);

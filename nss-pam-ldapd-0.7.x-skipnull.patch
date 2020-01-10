@@ -1,0 +1,25 @@
+diff -up nss-pam-ldapd-0.7.5/common/tio.c.skipnull nss-pam-ldapd-0.7.5/common/tio.c
+--- nss-pam-ldapd-0.7.5/common/tio.c.skipnull	2013-07-22 10:46:30.441850193 +0200
++++ nss-pam-ldapd-0.7.5/common/tio.c	2013-07-22 10:51:48.792836704 +0200
+@@ -325,6 +325,12 @@ int tio_skip(TFILE *fp, size_t count)
+ {
+   int rv;
+   size_t len;
++
++  if (count==0)
++  {
++    return 0;
++  }
++
+   /* for simple cases just read */
+   if (count>0)
+   {
+@@ -356,7 +362,7 @@ int tio_skip(TFILE *fp, size_t count)
+ /* Read all available data from the stream and empty the read buffer. */
+ int tio_skipall(TFILE *fp)
+ {
+-    return tio_skip(fp, 0);
++    return tio_skip(fp, -1);
+ }
+ 
+ /* the caller has assured us that we can write to the file descriptor

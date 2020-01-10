@@ -1,0 +1,14 @@
+diff -up nss-pam-ldapd-0.7.5/nslcd/myldap.c.logic_typo nss-pam-ldapd-0.7.5/nslcd/myldap.c
+--- nss-pam-ldapd-0.7.5/nslcd/myldap.c.logic_typo	2012-10-09 10:03:13.718343107 +0200
++++ nss-pam-ldapd-0.7.5/nslcd/myldap.c	2012-10-09 10:05:59.787335498 +0200
+@@ -1192,8 +1192,8 @@ MYLDAP_ENTRY *myldap_get_entry(MYLDAP_SE
+         }
+         /* close connection on some connection problems */
+         if ((rc==LDAP_UNAVAILABLE)||(rc==LDAP_SERVER_DOWN)||(rc==LDAP_SUCCESS)||
+-            (rc==LDAP_TIMELIMIT_EXCEEDED)|(rc==LDAP_OPERATIONS_ERROR)||
+-            (rc==LDAP_PROTOCOL_ERROR))
++            (rc==LDAP_TIMELIMIT_EXCEEDED)||(rc==LDAP_OPERATIONS_ERROR)||
++            (rc==LDAP_PROTOCOL_ERROR)||(rc==LDAP_ADMINLIMIT_EXCEEDED))
+         {
+           do_close(search->session);
+           /* retry once if no data has been received yet */
