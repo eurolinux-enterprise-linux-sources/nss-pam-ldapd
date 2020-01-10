@@ -1,6 +1,6 @@
 Name:		nss-pam-ldapd
 Version:	0.7.5
-Release:	32%{?dist}
+Release:	32%{?dist}.1
 Summary:	An nsswitch module which uses directory servers
 Group:		System Environment/Base
 License:	LGPLv2+
@@ -34,6 +34,7 @@ Patch22:        nss-pam-ldapd-0.7.5-nsssegfault.patch
 Patch23:        nss-pam-ldapd-0.7.5-tiobug.patch
 Patch24:        nss-pam-ldapd-0.7.5-man_urilist.patch
 Patch25:        nss-pam-ldapd-0.7.5-noclose.patch
+Patch26:        nss-pam-ldapd-bz1676861-Increase-size-of-config-file-token.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	openldap-devel, krb5-devel
@@ -84,6 +85,7 @@ nsswitch module.
 %patch23 -p1 -b .tiobug
 %patch24 -p1 -b .urilist
 %patch25 -p1 -b .noclose
+%patch26 -p1 -b .large_token
 autoreconf -f -i
 
 %build
@@ -224,6 +226,9 @@ if test -f /var/run/nss-pam-ldapd.migrate; then
 fi
 
 %changelog
+* Wed Mar 20 2019 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-32.1
+- Resolves: rhbz#1685884 - nslcd fails to connect to ldap if fqdn is large
+
 * Tue Feb 16 2016 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-32
 - Don't double-close the socket
 - Resolves: rhbz#1309364 - Use-after-free in case resolving hosts or

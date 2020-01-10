@@ -1,0 +1,27 @@
+From 9760dcef59da6ffbf1826724fa79621d74255e06 Mon Sep 17 00:00:00 2001
+From: Arthur de Jong <arthur@arthurdejong.org>
+Date: Sat, 23 Dec 2017 17:58:27 +0100
+Subject: [PATCH] Increase size of config file token
+
+This increases the maximum size of tokens that are read from the
+nslcd.conf configuration file to 256 characters. This was a problem for
+some very long uri values.
+
+Closes https://github.com/arthurdejong/nss-pam-ldapd/issues/21
+---
+ nslcd/cfg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/nslcd/cfg.c b/nslcd/cfg.c
+index a6cfeb32..60d860e7 100644
+--- a/nslcd/cfg.c
++++ b/nslcd/cfg.c
+@@ -1265,7 +1265,7 @@ static void cfg_read(const char *filename, struct ldap_config *cfg)
+   char linebuf[MAX_LINE_LENGTH];
+   char *line;
+   char keyword[32];
+-  char token[64];
++  char token[256];
+   int i;
+ #ifdef LDAP_OPT_X_TLS
+   int rc;
