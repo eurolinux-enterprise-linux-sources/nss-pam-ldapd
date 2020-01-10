@@ -1,0 +1,101 @@
+diff -up nss-pam-ldapd-0.7.5/nslcd/group.c.growbuffer nss-pam-ldapd-0.7.5/nslcd/group.c
+--- nss-pam-ldapd-0.7.5/nslcd/group.c.growbuffer	2015-11-13 10:27:42.860921173 +0100
++++ nss-pam-ldapd-0.7.5/nslcd/group.c	2015-11-13 10:27:58.533955000 +0100
+@@ -1,7 +1,7 @@
+ /*
+    group.c - group entry lookup routines
+-   Parts of this file were part of the nss_ldap library (as ldap-grp.c) which
+-   has been forked into the nss-pam-ldapd library.
++   Parts of this file were part of the nss_ldap library (as ldap-grp.c)
++   which has been forked into the nss-pam-ldapd library.
+ 
+    Copyright (C) 1997-2006 Luke Howard
+    Copyright (C) 2006 West Consulting
+@@ -182,7 +182,7 @@ static int do_write_group(
+ /* return the list of members */
+ static const char **getmembers(MYLDAP_ENTRY *entry,MYLDAP_SESSION *session)
+ {
+-  char buf[20];
++  char buf[256];
+   int i;
+   const char **values;
+   SET *set;
+@@ -250,7 +250,7 @@ static int write_group(TFILE *fp,MYLDAP_
+                           myldap_get_dn(entry),attmap_group_gidNumber);
+       return 0;
+     }
+-    for (numgids=0;(gidvalues[numgids]!=NULL)&&(numgids<MAXGIDS_PER_ENTRY);numgids++)
++    for (numgids=0;(numgids<MAXGIDS_PER_ENTRY)&&(gidvalues[numgids]!=NULL);numgids++)
+     {
+       errno=0;
+       gids[numgids]=strtogid(gidvalues[numgids],&tmp,10);
+diff -up nss-pam-ldapd-0.7.5/nslcd/host.c.growbuffer nss-pam-ldapd-0.7.5/nslcd/host.c
+--- nss-pam-ldapd-0.7.5/nslcd/host.c.growbuffer	2015-11-13 10:29:01.417090721 +0100
++++ nss-pam-ldapd-0.7.5/nslcd/host.c	2015-11-13 10:30:17.878255748 +0100
+@@ -5,7 +5,7 @@
+ 
+    Copyright (C) 1997-2005 Luke Howard
+    Copyright (C) 2006 West Consulting
+-   Copyright (C) 2006, 2007, 2009, 2010 Arthur de Jong
++   Copyright (C) 2006, 2007, 2009, 2010, 2011 Arthur de Jong
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+@@ -78,18 +78,18 @@ static int mkfilter_host_byname(const ch
+                     attmap_host_cn,safename);
+ }
+ 
+-static int mkfilter_host_byaddr(const char *name,
++static int mkfilter_host_byaddr(const char *addrname,
+                                 char *buffer,size_t buflen)
+ {
+-  char safename[64];
++  char safeaddr[64];
+   /* escape attribute */
+-  if (myldap_escape(name,safename,sizeof(safename)))
++  if (myldap_escape(addrname,safeaddr,sizeof(safeaddr)))
+     return -1;
+   /* build filter */
+   return mysnprintf(buffer,buflen,
+                     "(&%s(%s=%s))",
+                     host_filter,
+-                    attmap_host_ipHostNumber,safename);
++                    attmap_host_ipHostNumber,safeaddr);
+ }
+ 
+ void host_init(void)
+diff -up nss-pam-ldapd-0.7.5/nslcd/network.c.growbuffer nss-pam-ldapd-0.7.5/nslcd/network.c
+--- nss-pam-ldapd-0.7.5/nslcd/network.c.growbuffer	2015-11-13 10:31:47.935450119 +0100
++++ nss-pam-ldapd-0.7.5/nslcd/network.c	2015-11-13 10:32:00.079476330 +0100
+@@ -5,7 +5,7 @@
+ 
+    Copyright (C) 1997-2005 Luke Howard
+    Copyright (C) 2006 West Consulting
+-   Copyright (C) 2006, 2007, 2009, 2010 Arthur de Jong
++   Copyright (C) 2006, 2007, 2009, 2010, 2011 Arthur de Jong
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+@@ -77,18 +77,18 @@ static int mkfilter_network_byname(const
+                     attmap_network_cn,safename);
+ }
+ 
+-static int mkfilter_network_byaddr(const char *name,
++static int mkfilter_network_byaddr(const char *addrname,
+                                    char *buffer,size_t buflen)
+ {
+-  char safename[64];
++  char safeaddr[64];
+   /* escape attribute */
+-  if (myldap_escape(name,safename,sizeof(safename)))
++  if (myldap_escape(addrname,safeaddr,sizeof(safeaddr)))
+     return -1;
+   /* build filter */
+   return mysnprintf(buffer,buflen,
+                     "(&%s(%s=%s))",
+                     network_filter,
+-                    attmap_network_ipNetworkNumber,safename);
++                    attmap_network_ipNetworkNumber,safeaddr);
+ }
+ 
+ void network_init(void)

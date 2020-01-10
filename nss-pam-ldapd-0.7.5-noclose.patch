@@ -1,0 +1,24 @@
+diff -up nss-pam-ldapd-0.7.5/nss/hosts.c.noclose nss-pam-ldapd-0.7.5/nss/hosts.c
+--- nss-pam-ldapd-0.7.5/nss/hosts.c.noclose	2016-02-16 22:29:28.166692834 +0100
++++ nss-pam-ldapd-0.7.5/nss/hosts.c	2016-02-16 22:30:02.265803392 +0100
+@@ -48,8 +48,6 @@
+ 
+ #undef ERROR_OUT_BUFERROR
+ #define ERROR_OUT_BUFERROR(fp) \
+-  (void)tio_close(fp); \
+-  fp=NULL; \
+   *errnop=ERANGE; \
+   *h_errnop=TRY_AGAIN; \
+   return NSS_STATUS_TRYAGAIN;
+diff -up nss-pam-ldapd-0.7.5/nss/networks.c.noclose nss-pam-ldapd-0.7.5/nss/networks.c
+--- nss-pam-ldapd-0.7.5/nss/networks.c.noclose	2016-02-16 22:29:34.780714278 +0100
++++ nss-pam-ldapd-0.7.5/nss/networks.c	2016-02-16 22:29:55.352780979 +0100
+@@ -48,8 +48,6 @@
+ 
+ #undef ERROR_OUT_BUFERROR
+ #define ERROR_OUT_BUFERROR(fp) \
+-  (void)tio_close(fp); \
+-  fp=NULL; \
+   *errnop=ERANGE; \
+   *h_errnop=TRY_AGAIN; \
+   return NSS_STATUS_TRYAGAIN;

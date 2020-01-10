@@ -1,0 +1,12 @@
+diff -up nss-pam-ldapd-0.7.5/nss/common.h.nsssegfault nss-pam-ldapd-0.7.5/nss/common.h
+--- nss-pam-ldapd-0.7.5/nss/common.h.nsssegfault	2016-01-18 12:45:25.566926572 +0100
++++ nss-pam-ldapd-0.7.5/nss/common.h	2016-01-18 12:46:28.263084288 +0100
+@@ -84,7 +84,7 @@
+   int32_t tmpint32; \
+   enum nss_status retv; \
+   /* check that we have a valid buffer */ \
+-  if ((buffer==NULL)||(buflen=0)) \
++  if ((buffer==NULL)) \
+   { \
+       *errnop=EINVAL; \
+       return NSS_STATUS_UNAVAIL; \

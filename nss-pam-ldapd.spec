@@ -1,6 +1,6 @@
 Name:		nss-pam-ldapd
 Version:	0.7.5
-Release:	20%{?dist}.3
+Release:	32%{?dist}
 Summary:	An nsswitch module which uses directory servers
 Group:		System Environment/Base
 License:	LGPLv2+
@@ -25,6 +25,15 @@ Patch13:        nss-pam-ldapd-0.7.x-skipnull.patch
 Patch14:        nss-pam-ldapd-ssl-timeout.patch
 Patch15:        nss-pam-ldapd-config-crash.patch
 Patch16:        nss-pam-ldapd-static-cb-buf.patch
+Patch17:        nss-pam-ldapd-sync-skipall-from-0.8.patch
+Patch18:        nss-pam-ldapd-use-poll-instead-of-select.patch
+Patch19:        nss-pam-ldapd-retry-zero-buf.patch
+Patch20:        grow-gecos-buffer-size-and-consistency-improvements-.patch
+Patch21:        make-buffer-sizes-consistent-grow-gidNumber-buffer-t.patch
+Patch22:        nss-pam-ldapd-0.7.5-nsssegfault.patch
+Patch23:        nss-pam-ldapd-0.7.5-tiobug.patch
+Patch24:        nss-pam-ldapd-0.7.5-man_urilist.patch
+Patch25:        nss-pam-ldapd-0.7.5-noclose.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	openldap-devel, krb5-devel
@@ -66,6 +75,15 @@ nsswitch module.
 %patch14 -p1 -b .ssl
 %patch15 -p1 -b .configcrash
 %patch16 -p1 -b .cbstatic
+%patch17 -p1 -b .poll_prereq
+%patch18 -p1 -b .poll
+%patch19 -p1 -b .zerobuf
+%patch20 -p1 -b .growgecos
+%patch21 -p1 -b .largebuf
+%patch22 -p1 -b .nsssegfault
+%patch23 -p1 -b .tiobug
+%patch24 -p1 -b .urilist
+%patch25 -p1 -b .noclose
 autoreconf -f -i
 
 %build
@@ -206,18 +224,51 @@ if test -f /var/run/nss-pam-ldapd.migrate; then
 fi
 
 %changelog
-* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.3
+* Tue Feb 16 2016 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-32
+- Don't double-close the socket
+- Resolves: rhbz#1309364 - Use-after-free in case resolving hosts or
+                           networks fail
+
+* Tue Feb 16 2016 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-31
+- Resolves: rhbz#1293564 - fix doc to describe actual uri format
+                           in nslcd.conf
+
+* Tue Jan 19 2016 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-30
+- Resolves: rhbz#1293564 - Segmentation fault during upstream make check
+- Also fix regressions in the tio.c module revealed by subsequent testing
+
+* Fri Nov 13 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-28
+- Resolves: rhbz#1061218 - Buffer sizes too small
+
+* Fri Nov 13 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-27
+- Resolves: rhbz#1240388 - nslcd fails to fetch member of group if that
+                           members name has 19 or more character in its name
+
+* Wed Nov 11 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-26
+- Apply patches in prep
+- Resolves: rhbz#917876 - [patch] Retry on zero length buffers rather than
+                          declaring source unavailable
+
+* Wed Nov 11 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-25
+- Resolves: rhbz#917876 - [patch] Retry on zero length buffers rather than
+                          declaring source unavailable
+
+* Wed Nov 11 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-24
+- Apply two patches from upstream
+- Resolves: rhbz#1105382 - nslcd: error reading from client: Success
+
+* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-23
 - Use a static buffer for OpenLDAP callback structure
 - Resolves: rhbz#999472 - nslcd does not reconnect to alternate ldap server
                           when using SSL
 
-* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.2
+* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-22
 - Do not crash when parsing the tls_ciphers option
 - Resolves: rhbz#1184361 - segfault occurs when nslcd starts 
 
-* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20.1
-- Resolves: rhbz#1192451 - nslcd does not reconnect to alternate ldap server
-                           when using SSL
+* Wed Jan 28 2015 Jakub Hrozek <jhrozek@redhat.com> 0.7.5-21
+- Resolves: rhbz#999472 - nslcd does not reconnect to alternate ldap server
+                          when using SSL
 
 * Mon Jul 22 2013  Jakub Hrozek <jhrozek@redhat.com> 0.7.5-20
 - Apply a patch by Martin Poole to fix skipping a zero-length attribute
