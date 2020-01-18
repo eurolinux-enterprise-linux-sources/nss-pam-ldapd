@@ -39,7 +39,7 @@
 
 Name:		nss-pam-ldapd
 Version:	0.8.13
-Release:	16%{?dist}
+Release:	16%{?dist}.1
 Summary:	An nsswitch module which uses directory servers
 Group:		System Environment/Base
 License:	LGPLv2+
@@ -63,6 +63,7 @@ Patch11:        nss-pam-ldapd-0.8.13-avoid-lockout-on-bad-password.patch
 Patch12:        nss-pam-ldapd-0.8.13-password-longer-than-64-chars.patch
 Patch13:        nss-pam-ldapd-0.8.13-uri-man-fix.patch
 Patch14:        nss-pam-ldapd-0.8.13-uid_formatting.patch
+Patch15:        nss-pam-ldapd-bz1676861-Increase-size-of-config-file-token.patch
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	openldap-devel, krb5-devel
@@ -124,6 +125,7 @@ nsswitch module.
 %patch12 -p1 -b .long_password
 %patch13 -p1 -b .uri_list
 %patch14 -p1 -b .uid_formatting
+%patch15 -p1 -b .config_token_size
 autoreconf -f -i
 
 %build
@@ -360,6 +362,9 @@ exit 0
 %endif
 
 %changelog
+* Thu Mar 14 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-16.1
+- Resolves: rhbz#1689119 - nslcd fails to connect to ldap if fqdn is large [rhel-7.6.z]
+
 * Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-16
 - Resolves: rhbz#1151675 - NSLCD WRAPS LDAP USER UIDNUMBER > 2^31 SO UID
                            IS WRONG (AND A NEGATIVE NUMBER)
