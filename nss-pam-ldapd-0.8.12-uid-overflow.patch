@@ -1,0 +1,77 @@
+Always use a function that we know will catch out-of-range values for UIDs and
+GIDs, which are currently unsigned 32-bit numbers everywhere, and which won't
+produce a result that'll silently be truncated if we store the result in a
+uid_t or gid_t.
+--- nss-pam-ldapd/nslcd/common.c
++++ nss-pam-ldapd/nslcd/common.c
+@@ -273,19 +273,23 @@ long int binsid2id(const char *binsid)
+          ((((long int)binsid[i+2])&0xff)<<16)|((((long int)binsid[i+3])&0xff)<<24);
+ }
+ 
+-#ifdef WANT_STRTOUI
+-/* provide a strtoui() implementation, similar to strtoul() but returning
++/* provide a strtoid() implementation, similar to strtoul() but returning
+    an range-checked unsigned int instead */
+-unsigned int strtoui(const char *nptr,char **endptr,int base)
++unsigned int strtoid(const char *nptr,char **endptr,int base)
+ {
+-  unsigned long val;
+-  val=strtoul(nptr,endptr,base);
+-  if (val>UINT_MAX)
++  long long val;
++  /* use the fact that long long is 64-bit, even on 32-bit systems */
++  val=strtoll(nptr,endptr,base);
++  if (val>UINT32_MAX)
+   {
+     errno=ERANGE;
+-    return UINT_MAX;
++    return UINT32_MAX;
+   }
+-  /* If errno was set by strtoul, we'll pass it back as-is */
+-  return (unsigned int)val;
++  else if (val < 0)
++  {
++    errno=EINVAL;
++    return UINT32_MAX;
++  }
++  /* If errno was set, we'll pass it back as-is */
++  return (uint32_t)val;
+ }
+-#endif /* WANT_STRTOUI */
+--- nss-pam-ldapd/nslcd/common.h
++++ nss-pam-ldapd/nslcd/common.h
+@@ -139,31 +139,9 @@ int nsswitch_db_uses_ldap(const char *fi
+ #endif /* _POSIX_HOST_NAME_MAX */
+ #endif /* not HOST_NAME_MAX */
+ 
+-/* provide strtouid() function alias */
+-#if SIZEOF_UID_T == SIZEOF_UNSIGNED_LONG_INT
+-#define strtouid (uid_t)strtoul
+-#elif SIZEOF_UID_T == SIZEOF_UNSIGNED_LONG_LONG_INT
+-#define strtouid (uid_t)strtoull
+-#elif SIZEOF_UID_T == SIZEOF_UNSIGNED_INT
+-#define WANT_STRTOUI 1
+-#define strtouid (uid_t)strtoui
+-#else
+-#error unable to find implementation for strtouid()
+-#endif
+-
+-/* provide strtouid() function alias */
+-#if SIZEOF_GID_T == SIZEOF_UNSIGNED_LONG_INT
+-#define strtogid (gid_t)strtoul
+-#elif SIZEOF_GID_T == SIZEOF_UNSIGNED_LONG_LONG_INT
+-#define strtogid (gid_t)strtoull
+-#elif SIZEOF_GID_T == SIZEOF_UNSIGNED_INT
+-#ifndef WANT_STRTOUI
+-#define WANT_STRTOUI 1
+-#endif
+-#define strtogid (uid_t)strtoui
+-#else
+-#error unable to find implementation for strtogid()
+-#endif
++uint32_t strtoid(const char *nptr,char **endptr,int base);
++#define strtouid (uid_t)strtoid
++#define strtogid (gid_t)strtoid
+ 
+ #ifdef WANT_STRTOUI
+ /* provide a strtoui() if it is needed */

@@ -1,0 +1,36 @@
+Defaults changed to allow opening and closing parentheses everywhere.  Defaults
+changed again to make characters after the first optional, and again to go back
+to disallowing names which end with "\".
+--- man/nslcd.conf.5.xml
++++ man/nslcd.conf.5.xml
+@@ -712,7 +712,7 @@
+        characters and the 'i' flag may be appended at the end to indicate
+        that the match should be case-insensetive.
+        The default value is
+-       <literal>/^[a-z0-9._@$][a-z0-9._@$ \\~-]*[a-z0-9._@$~-]$/i</literal>
++       <literal>/^[a-z0-9._@$()]([a-z0-9._@$() \\~-]*[a-z0-9._@$()~-])?$/i</literal>
+       </para>
+      </listitem>
+     </varlistentry>
+--- nslcd/cfg.c
++++ nslcd/cfg.c
+@@ -134,7 +134,7 @@ static void cfg_defaults(struct ldap_con
+     cfg->ldc_pam_authz_search[i]=NULL;
+   cfg->ldc_nss_min_uid=0;
+   parse_validnames_statement(__FILE__,__LINE__,"",
+-                "/^[a-z0-9._@$][a-z0-9._@$ \\~-]*[a-z0-9._@$~-]$/i",cfg);
++                "/^[a-z0-9._@$()]([a-z0-9._@$() \\~-]*[a-z0-9._@$()~-])?$/i",cfg);
+   cfg->pam_password_prohibit_message=NULL;
+ }
+ 
+--- tests/test_common.c
++++ tests/test_common.c
+@@ -39,6 +39,8 @@ static void test_isvalidname(void)
+   assert(!isvalidname("\\foo\\bar"));
+   assert(!isvalidname("foo\\bar\\"));
+   assert(isvalidname("me")); /* try short name */
++  assert(isvalidname("f"));
++  assert(isvalidname("(foo bar)"));
+ }
+ 
+ /* the main program... */

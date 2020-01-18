@@ -1,0 +1,46 @@
+From e34fccc883e1fb6e7c0e1663e11ff9f96191971f Mon Sep 17 00:00:00 2001
+From: Lukas Slebodnik <lslebodn@redhat.com>
+Date: Mon, 27 Jan 2014 17:04:32 +0100
+Subject: [PATCH 1/2] Fix use after free in read_hostent and read_netent.
+
+if NSS_STATUS_TRYAGAIN is returned from read_one_hostent or
+read_one_netent function tio_skipall will be called with NULL pointer
+It could happend in functions:
+	 _nss_ldap_getnetbyname_r
+	_nss_ldap_getnetbyaddr_r
+	_nss_ldap_gethostbyname2_r
+	_nss_ldap_gethostbyaddr_r
+---
+ nss/hosts.c    | 2 --
+ nss/networks.c | 2 --
+ 2 files changed, 4 deletions(-)
+
+diff --git a/nss/hosts.c b/nss/hosts.c
+index 86b6a77..0e7027e 100644
+--- a/nss/hosts.c
++++ b/nss/hosts.c
+@@ -51,8 +51,6 @@
+ 
+ #undef ERROR_OUT_BUFERROR
+ #define ERROR_OUT_BUFERROR(fp) \
+-  (void)tio_close(fp); \
+-  fp=NULL; \
+   *errnop=ERANGE; \
+   *h_errnop=TRY_AGAIN; \
+   return NSS_STATUS_TRYAGAIN;
+diff --git a/nss/networks.c b/nss/networks.c
+index 859ef0e..1403b45 100644
+--- a/nss/networks.c
++++ b/nss/networks.c
+@@ -51,8 +51,6 @@
+ 
+ #undef ERROR_OUT_BUFERROR
+ #define ERROR_OUT_BUFERROR(fp) \
+-  (void)tio_close(fp); \
+-  fp=NULL; \
+   *errnop=ERANGE; \
+   *h_errnop=TRY_AGAIN; \
+   return NSS_STATUS_TRYAGAIN;
+-- 
+1.8.5.3
+

@@ -1,0 +1,12 @@
+diff -up nss-pam-ldapd-0.8.13/nslcd/pam.c.str_cmp nss-pam-ldapd-0.8.13/nslcd/pam.c
+--- nss-pam-ldapd-0.8.13/nslcd/pam.c.str_cmp	2017-10-23 21:18:19.867943857 +0200
++++ nss-pam-ldapd-0.8.13/nslcd/pam.c	2017-10-23 21:18:35.935986527 +0200
+@@ -133,7 +133,7 @@ static void update_username(MYLDAP_ENTRY
+     return;
+   }
+   /* check if the username is different and update it if needed */
+-  if (strcmp(username,value)!=0)
++  if (STR_CMP(username,value)!=0)
+   {
+     log_log(LOG_INFO,"username changed from \"%s\" to \"%s\"",username,value);
+     strcpy(username,value);

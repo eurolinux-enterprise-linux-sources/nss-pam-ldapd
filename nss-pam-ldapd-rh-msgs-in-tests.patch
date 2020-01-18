@@ -1,0 +1,30 @@
+diff -up nss-pam-ldapd-0.8.13/tests/test_pamcmds.expect.rh_test_msgs nss-pam-ldapd-0.8.13/tests/test_pamcmds.expect
+--- nss-pam-ldapd-0.8.13/tests/test_pamcmds.expect.rh_test_msgs	2014-01-20 15:32:33.253018468 +0100
++++ nss-pam-ldapd-0.8.13/tests/test_pamcmds.expect	2014-01-20 15:38:00.452957296 +0100
+@@ -40,7 +40,7 @@ proc reset_password {} {
+   expect {
+     "LDAP administrator password" { send "test\r"; exp_continue }
+     -regexp "(New|Retype new) password:" { send "test\r"; exp_continue }
+-    "password updated successfully" {}
++    "passwd: all authentication tokens updated successfully" {}
+     "Invalid credentials" abort
+     "Authentication token manipulation error" abort
+     default abort
+@@ -114,7 +114,7 @@ proc test_login_unknown {uid passwd} {
+   expect {
+     "Password:" { send "$passwd\r"; exp_continue }
+     "Unknown id" {}
+-    "No passwd entry for user" {}
++    "su: user $uid does not exist" {}
+     "\$ " abort
+     default abort
+   }
+@@ -156,7 +156,7 @@ expect {
+ }
+ expect {
+   -regexp "(New|Retype new) password:" { send "newpassword\r"; exp_continue }
+-  "password updated successfully" {}
++  "passwd: all authentication tokens updated successfully" {}
+   "Invalid credentials" abort
+   "Authentication token manipulation error" abort
+   "\$ " abort

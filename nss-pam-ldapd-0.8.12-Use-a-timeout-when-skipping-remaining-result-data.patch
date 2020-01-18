@@ -1,0 +1,111 @@
+From 335f7e085b45556276d2c1f224648a7eed28e4fd Mon Sep 17 00:00:00 2001
+From: Arthur de Jong <arthur@arthurdejong.org>
+Date: Sun, 6 Oct 2013 14:11:51 +0000
+Subject: [PATCH 2/3] use a timeout when skipping remaining result data
+ (c9e2f97 from 0.9)
+
+git-svn-id: http://arthurdejong.org/svn/nss-pam-ldapd/nss-pam-ldapd-0.8@2031 ef36b2f9-881f-0410-afb5-c4e39611909c
+---
+ common/tio.c |  6 +++---
+ common/tio.h |  4 ++--
+ nss/common.h | 10 +++++++---
+ 3 files changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/common/tio.c b/common/tio.c
+index 9aef80ca91faedad8f75e09b9070d22ed4a0878d..780ea38f175482dfed5e1c754ef75e93ffd83768 100644
+--- a/common/tio.c
++++ b/common/tio.c
+@@ -2,7 +2,7 @@
+    tio.c - timed io functions
+    This file is part of the nss-pam-ldapd library.
+ 
+-   Copyright (C) 2007, 2008, 2010, 2011, 2012 Arthur de Jong
++   Copyright (C) 2007, 2008, 2010, 2011, 2012, 2013 Arthur de Jong
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+@@ -298,7 +298,7 @@ int tio_skip(TFILE *fp, size_t count)
+ }
+ 
+ /* Read all available data from the stream and empty the read buffer. */
+-int tio_skipall(TFILE *fp)
++int tio_skipall(TFILE *fp,int skiptimeout)
+ {
+   struct pollfd fds[1];
+   int rv;
+@@ -318,7 +318,7 @@ int tio_skipall(TFILE *fp)
+     /* see if any data is available */
+     fds[0].fd=fp->fd;
+     fds[0].events=POLLIN;
+-    rv=poll(fds,1,0);
++    rv=poll(fds,1,skiptimeout);
+     /* check the poll() result */
+     if (rv==0)
+       return 0; /* no file descriptor ready */
+diff --git a/common/tio.h b/common/tio.h
+index cd3f370732e4c54815187bb8012fd5a5ff8972af..b38d458aedd660ff95ff2e57f9df790ffd51ff6d 100644
+--- a/common/tio.h
++++ b/common/tio.h
+@@ -2,7 +2,7 @@
+    tio.h - timed io functions
+    This file is part of the nss-pam-ldapd library.
+ 
+-   Copyright (C) 2007, 2008, 2010, 2012 Arthur de Jong
++   Copyright (C) 2007, 2008, 2010, 2012, 2013 Arthur de Jong
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+@@ -59,7 +59,7 @@ int tio_read(TFILE *fp,void *buf,size_t count);
+ int tio_skip(TFILE *fp,size_t count);
+ 
+ /* Read all available data from the stream and empty the read buffer. */
+-int tio_skipall(TFILE *fp);
++int tio_skipall(TFILE *fp,int skiptimeout);
+ 
+ /* Write the specified buffer to the stream. */
+ int tio_write(TFILE *fp,const void *buf,size_t count);
+diff --git a/nss/common.h b/nss/common.h
+index e8d8e0526499c252f69a558384ddae8504009d26..3f93a4fb4704092dd5b1a41b024d33abf59cba60 100644
+--- a/nss/common.h
++++ b/nss/common.h
+@@ -2,7 +2,7 @@
+    common.h - common functions for NSS lookups
+ 
+    Copyright (C) 2006 West Consulting
+-   Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Arthur de Jong
++   Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 Arthur de Jong
+ 
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+@@ -35,6 +35,10 @@
+ #include "solnss.h"
+ #endif /* NSS_FLAVOUR_SOLARIS */
+ 
++/* skip timeout determines the maximum time to wait when closing the
++   connection and reading whatever data that is available */
++#define SKIP_TIMEOUT 500
++
+ /* These are macros for handling read and write problems, they are
+    NSS specific due to the return code so are defined here. They
+    genrally close the open file, set an error code and return with
+@@ -127,7 +131,7 @@
+   /* close socket and we're done */ \
+   if ((retv==NSS_STATUS_SUCCESS)||(retv==NSS_STATUS_TRYAGAIN)) \
+   { \
+-    (void)tio_skipall(fp); \
++    (void)tio_skipall(fp,SKIP_TIMEOUT); \
+     (void)tio_close(fp); \
+   } \
+   return retv;
+@@ -203,7 +207,7 @@
+   NSS_AVAILCHECK; \
+   if (fp!=NULL) \
+   { \
+-    (void)tio_skipall(fp); \
++    (void)tio_skipall(fp,SKIP_TIMEOUT); \
+     (void)tio_close(fp); \
+     fp=NULL; \
+   } \
+-- 
+1.8.3.1
+

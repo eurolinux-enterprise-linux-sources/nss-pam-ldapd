@@ -1,0 +1,30 @@
+From ec2ac2cc7eaa945f3d07d2528ddd4b8d9b8d38e1 Mon Sep 17 00:00:00 2001
+From: Arthur de Jong <arthur@arthurdejong.org>
+Date: Sun, 6 Oct 2013 14:14:39 +0000
+Subject: [PATCH 3/3] in nslcd, log EPIPE only on debug level (4897033 from
+ 0.9)
+
+git-svn-id: http://arthurdejong.org/svn/nss-pam-ldapd/nss-pam-ldapd-0.8@2032 ef36b2f9-881f-0410-afb5-c4e39611909c
+---
+ nslcd/common.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/nslcd/common.h b/nslcd/common.h
+index 736d7c09c9cd6d333fc4caa0a15144cc83eb9ecd..c48decb58df5262f459e0862f677960c31e20df7 100644
+--- a/nslcd/common.h
++++ b/nslcd/common.h
+@@ -43,7 +43,10 @@
+    stream */
+ 
+ #define ERROR_OUT_WRITEERROR(fp) \
+-  log_log(LOG_WARNING,"error writing to client: %s",strerror(errno)); \
++  if (errno==EPIPE) \
++   log_log(LOG_DEBUG, "error writing to client: %s", strerror(errno)); \
++  else \
++   log_log(LOG_WARNING, "error writing to client: %s", strerror(errno)); \
+   return -1;
+ 
+ #define ERROR_OUT_READERROR(fp) \
+-- 
+1.8.3.1
+

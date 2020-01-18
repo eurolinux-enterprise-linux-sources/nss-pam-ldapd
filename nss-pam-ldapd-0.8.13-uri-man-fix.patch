@@ -1,0 +1,24 @@
+diff -up nss-pam-ldapd-0.8.13/man/nslcd.conf.5.uri_list nss-pam-ldapd-0.8.13/man/nslcd.conf.5
+--- nss-pam-ldapd-0.8.13/man/nslcd.conf.5.uri_list	2017-10-24 14:08:54.429271306 +0200
++++ nss-pam-ldapd-0.8.13/man/nslcd.conf.5	2017-10-24 14:09:31.691444445 +0200
+@@ -46,7 +46,7 @@ Note that you should use values that don
+ to resolve.
+ .SS "GENERAL CONNECTION OPTIONS"
+ .TP 
+-\*(T<\fBuri\fR\*(T> \fIURI\fR
++\*(T<\fBuri\fR\*(T> \fIURI\fR ...
+ Specifies the LDAP URI of the
+ server to connect to.
+ The URI scheme may be \*(T<ldap\*(T>,
+@@ -66,8 +66,9 @@ When using the ldapi scheme, %2f should
+ (e.g. ldapi://%2fvar%2frun%2fslapd%2fldapi/), although most of the
+ time this should not be needed.
+ 
+-This option may be specified multiple times. Normally, only the first
+-server will be used with the following servers as fall-back (see
++This option may be specified multiple times and/or with more URIs on the
++line, separated by space. Normally, only the first server will be used
++with the following servers as fall-back (see
+ \*(T<\fBbind_timelimit\fR\*(T> below).
+ 
+ If LDAP lookups are used for host name resolution,
