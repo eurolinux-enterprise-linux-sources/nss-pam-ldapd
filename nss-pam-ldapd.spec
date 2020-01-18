@@ -39,7 +39,7 @@
 
 Name:		nss-pam-ldapd
 Version:	0.8.13
-Release:	16%{?dist}.1
+Release:	4%{?dist}
 Summary:	An nsswitch module which uses directory servers
 Group:		System Environment/Base
 License:	LGPLv2+
@@ -54,17 +54,6 @@ Patch2:         nss-pam-ldapd-0.8.12-In-nslcd-log-EPIPE-only-on-debug-level.patc
 Patch3:		nss-pam-ldapd-0.8.12-uid-overflow.patch
 Patch4:		nss-pam-ldapd-0.8.12-Use-a-timeout-when-skipping-remaining-result-data.patch
 Patch5:		nss-pam-ldapd-0.8.12-fix-buffer-overflow-on-interrupted-read-thanks-John-.patch
-Patch6:		nss-pam-ldapd-rh-msgs-in-tests.patch
-Patch7:         nss-pam-ldapd-0.8.13-Fix-use-after-free-in-read_hostent-and-read_netent.patch
-Patch8:         nss-pam-ldapd-0.8.13-Use-right-h_errnop-for-retrying-with-larger-buffer.patch
-Patch9:         nss-pam-ldapd-exitcode.patch
-Patch10:        nss-pam-ldapd-0.8.12-str-cmp.patch
-Patch11:        nss-pam-ldapd-0.8.13-avoid-lockout-on-bad-password.patch
-Patch12:        nss-pam-ldapd-0.8.13-password-longer-than-64-chars.patch
-Patch13:        nss-pam-ldapd-0.8.13-uri-man-fix.patch
-Patch14:        nss-pam-ldapd-0.8.13-uid_formatting.patch
-Patch15:        nss-pam-ldapd-bz1676861-Increase-size-of-config-file-token.patch
-
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	openldap-devel, krb5-devel
 BuildRequires:	autoconf, automake
@@ -116,16 +105,6 @@ nsswitch module.
 %patch3 -p1 -b .overflow
 %patch4 -p1 -b .skiptimeout
 %patch5 -p1 -b .readall
-%patch6 -p1 -b .test_msgs
-%patch7 -p1 -b .use_after_free
-%patch8 -p1 -b .errnop_val
-%patch9 -p1 -b .exit_code
-%patch10 -p1 -b .str_cmp
-%patch11 -p1 -b .avoid_lockout_on_bad_password
-%patch12 -p1 -b .long_password
-%patch13 -p1 -b .uri_list
-%patch14 -p1 -b .uid_formatting
-%patch15 -p1 -b .config_token_size
 autoreconf -f -i
 
 %build
@@ -176,8 +155,8 @@ $RPM_BUILD_ROOT/%{_sysconfdir}/nslcd.conf
 touch -r nslcd.conf $RPM_BUILD_ROOT/%{_sysconfdir}/nslcd.conf
 mkdir -p -m 0755 $RPM_BUILD_ROOT/var/run/nslcd
 %if %{tmpfiles}
-mkdir -p -m 0755 $RPM_BUILD_ROOT/%{_tmpfilesdir}
-install -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT/%{_tmpfilesdir}/%{name}.conf
+mkdir -p -m 0755 $RPM_BUILD_ROOT/etc/tmpfiles.d
+install -p -m 0644 %{SOURCE3} $RPM_BUILD_ROOT/etc/tmpfiles.d/%{name}.conf
 %endif
 
 %clean
@@ -194,7 +173,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 %attr(0600,root,root) %config(noreplace) %verify(not md5 size mtime) /etc/nslcd.conf
 %if %{tmpfiles}
-%attr(0644,root,root) %config(noreplace) %{_tmpfilesdir}/%{name}.conf
+%attr(0644,root,root) %config(noreplace) /etc/tmpfiles.d/%{name}.conf
 %endif
 %if %{sysvinit}
 %attr(0755,root,root) %{_initddir}/nslcd
@@ -362,58 +341,6 @@ exit 0
 %endif
 
 %changelog
-* Thu Mar 14 2019 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-16.1
-- Resolves: rhbz#1689119 - nslcd fails to connect to ldap if fqdn is large [rhel-7.6.z]
-
-* Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-16
-- Resolves: rhbz#1151675 - NSLCD WRAPS LDAP USER UIDNUMBER > 2^31 SO UID
-                           IS WRONG (AND A NEGATIVE NUMBER)
-
-* Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-15
-- Resolves: rhbz#1204202 - fix doc to describe actual uri format in
-                           nslcd.conf
-
-* Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-14
-- Resolves: rhbz#1288429 - /etc/tmpfiles.d/nss-pam-ldapd.conf shipped when
-                           /etc/tmpfiles.d is reserved for the local
-                           administrator
-
-* Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-13
-- Resolves: rhbz#1312297 - nslcd.service does not restart on failure
-
-* Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-12
-- Resolves: rhbz#1425790 - Unable to authenticate with 64 character password
-                           using nss-pam-ldapd
-
-* Tue Oct 24 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-11
-- Resolves: rhbz#1497761 - Incorrect password tries to bind to all domain
-                           controllers and locks user out
-
-* Mon Oct 23 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-10
-- Resolves: rhbz#1357493 - In RHEL 7, authentication failing when using
-                           nslcd + pam_ldap where user has different in
-                           nis/passwd and ldap.
-
-* Mon Oct 23 2017 Jakub Hrozek <jhrozek@redhat.com> - 0.8.13-9
-- Resolves: rhbz#1420576 - 'systemctl status nslcd' always returns FAILURE
-                           status even though the service is stopped with
-                           'systemctl stop nslcd
-
-* Wed Jan 29 2014 Jakub Hrozek <jhrozek@redhat.com>  0.8.13-8
-- Fix a potential use-after-free in nsswitch module
-- Resolves: rhbz#1036030 - New defect found in nss-pam-ldapd-0.8.13-4.el7
-
-* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 0.8.13-7
-- Mass rebuild 2014-01-24
-
-* Mon Jan 20 2014 Jakub Hrozek <jhrozek@redhat.com>  0.8.13-6
-- Change the error messages the tests expect to those printed on RH based
-  systems
-- Resolves: rhbz#1044482
-
-* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.8.13-5
-- Mass rebuild 2013-12-27
-
 * Fri Oct 18 2013 Nalin Dahyabhai <nalin@redhat.com>  0.8.13-4
 - compile nslcd/log.c with -fPIC instead of the current hardened-build default
   of -fPIE, which doesn't seem to avoid relocations for its thread-local
