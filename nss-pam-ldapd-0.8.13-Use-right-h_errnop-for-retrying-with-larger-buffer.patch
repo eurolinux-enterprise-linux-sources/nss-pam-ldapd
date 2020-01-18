@@ -1,0 +1,41 @@
+From ec86b3d715ae9583288b12686a0552586caa6270 Mon Sep 17 00:00:00 2001
+From: Lukas Slebodnik <lslebodn@redhat.com>
+Date: Mon, 27 Jan 2014 17:17:33 +0100
+Subject: [PATCH 2/2] Use right h_errnop for retrying with larger buffer.
+
+The libc nsswitch code expects h_errno to be set to NETDB_INTERNAL when
+it needs to try again with a larger buffer.
+---
+ nss/hosts.c    | 2 +-
+ nss/networks.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/nss/hosts.c b/nss/hosts.c
+index 0e7027e..2bf4c86 100644
+--- a/nss/hosts.c
++++ b/nss/hosts.c
+@@ -52,7 +52,7 @@
+ #undef ERROR_OUT_BUFERROR
+ #define ERROR_OUT_BUFERROR(fp) \
+   *errnop=ERANGE; \
+-  *h_errnop=TRY_AGAIN; \
++  *h_errnop=NETDB_INTERNAL; \
+   return NSS_STATUS_TRYAGAIN;
+ 
+ #undef ERROR_OUT_WRITEERROR
+diff --git a/nss/networks.c b/nss/networks.c
+index 1403b45..f3cb269 100644
+--- a/nss/networks.c
++++ b/nss/networks.c
+@@ -52,7 +52,7 @@
+ #undef ERROR_OUT_BUFERROR
+ #define ERROR_OUT_BUFERROR(fp) \
+   *errnop=ERANGE; \
+-  *h_errnop=TRY_AGAIN; \
++  *h_errnop=NETDB_INTERNAL; \
+   return NSS_STATUS_TRYAGAIN;
+ 
+ #undef ERROR_OUT_WRITEERROR
+-- 
+1.8.5.3
+
